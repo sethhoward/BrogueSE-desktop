@@ -18,7 +18,7 @@ always-on power with its bite — and adds a shrine that will identify your pack
 dare wake what guards it.*
 
 ### 🔮 Cursed Runics, Reworked
-- **A curse is a bargain, not a trap** — A cursed runic now grants a genuine, always-on power alongside its drawback, welded to you until you deal with it. Every downside has a counter you can lean into, so keeping a cursed item can be the smart play.
+- **A curse is a bargain, not a trap** — A cursed runic now grants a genuine, always-on power alongside its drawback, welded to you until you deal with it. Every downside has a counter you can lean into, so keeping a cursed item can be the smart play. all old armor/weapon cursed runics have been removed and initial negative enchant is locked to -1. 
 - **Two ways to break the weld** — Pour enchant scrolls in to the purify threshold and the drawback burns away while the power stays (weapons at +6, armor at +4); or read remove-curse to pry it off early, drawback and all.
 - **Maddening, reckless, and clumsy blades** — Delirium confounds what you strike but leaves you hallucinating; Recklessness trades the damage you take for the damage you deal; a Clumsy blade fumbles and stuns you — until you purify it into a true executioner's blade.
 - **Anchor, Smoky, and Acrophobia armor** — Anchor steels your defense but drags your step (purify to stand immovable); Smoky armor wraps you in concealing haze at the cost of your own sight (purify for a quiet stealth aura); Acrophobia makes you fearless of pits but dizzy at their edge.
