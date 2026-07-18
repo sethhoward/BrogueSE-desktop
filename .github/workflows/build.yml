@@ -3,6 +3,8 @@ on:
   push:
     branches:
     - '**'
+    tags:
+    - 'v*'             # pushing a v* tag builds and publishes a GitHub Release
   workflow_dispatch:   # allow manual runs from the Actions tab
 
 jobs:
@@ -70,3 +72,47 @@ jobs:
         name: linux-x86_64
         path: BrogueSE-linux-x86_64.tar.gz
         compression-level: 0  # already compressed
+
+  # ---------------------------------------------------------------------------
+  # Release. Runs only for v* tag pushes: gathers the Windows + Linux artifacts
+  # and publishes them on a GitHub Release for the tag.
+  # ---------------------------------------------------------------------------
+  release:
+    needs: [windows, linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to create the release
+    steps:
+    - name: "Checkout sources"
+      uses: actions/checkout@v4
+
+    - name: "Download build artifacts"
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: "Extract release notes from CHANGELOG"
+      run: |
+        ver="${GITHUB_REF_NAME#v}"
+        # Pull the "## <ver> ..." section out of CHANGELOG.md, up to the next "## " header.
+        awk -v ver="$ver" '
+          $0 ~ ("^## " ver " ") { grab=1; print; next }
+          grab && /^## / { exit }
+          grab { print }
+        ' CHANGELOG.md > RELEASE_NOTES.md
+        if [ ! -s RELEASE_NOTES.md ]; then
+          echo "See CHANGELOG.md for the full change list." > RELEASE_NOTES.md
+        fi
+        echo "----- release notes -----"; cat RELEASE_NOTES.md
+
+    - name: "Publish GitHub Release"
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release create "${{ github.ref_name }}" \
+          --repo "${{ github.repository }}" \
+          --title "Brogue SE ${{ github.ref_name }}" \
+          --notes-file RELEASE_NOTES.md \
+          artifacts/windows-x86_64/BrogueSE-windows-x86_64.zip \
+          artifacts/linux-x86_64/BrogueSE-linux-x86_64.tar.gz

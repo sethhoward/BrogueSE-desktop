@@ -30,6 +30,14 @@ dare wake what guards it.*
 ### 🎣 Cleaner Distractions
 - **Thrown lures buy real time** — A monster that goes to investigate a thrown item now lingers over it for a few turns before losing interest, opening a genuine window to slip past.
 
+### 🗺️ Terrain
+- **Mud and bog slow you down** — Slogging through the mire now costs extra movement, for you and monsters alike. Fighting is unaffected — you can swing at full speed, you just can't maneuver — and anything flying or levitating floats over it. Lure fast enemies in, but mind that you're slowed there too. A fleeing bog monster loses its home-turf advantage in the mire.
+- **Traps hint at their surroundings** — Confusion traps now sometimes sit amid a soft patch of glowing fungus, joining fire-traps-in-grass and caustic-traps-in-bones.
+
+### 👁️ Tells & Legibility
+- **Poison, at a glance** — Poisoned creatures — you included — now show a sickly green tint and a pulsing skull, so you can read the affliction across the room.
+- **Passive-event star bursts** — A color-coded star bursts over you the moment a passive item event lands, and its log line shares the color so you learn the cue: gold for something identified, red for a curse revealed on equip, green for a cursed runic purified, cyan for a spent staff or charm coming back to life.
+
 ### 🎮 Quality of Life
 - **Fire no longer rattles you** — Catching fire used to throw you into a brief panic; now that disorientation strikes only monsters. It still burns — but your wits, and your next move, stay yours.
 - **Study a scroll even while hunted** — Sitting down to a meal always lets you puzzle out an unidentified scroll now, even with something on your trail; the old "only when nothing's hunting you" restriction is gone.
