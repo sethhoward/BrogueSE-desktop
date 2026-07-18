@@ -2,6 +2,7 @@
 #include <limits.h>
 #include "platform.h"
 #include "GlobalsBase.h"
+#include "se-host-extras.h"
 
 #ifndef DATADIR
 #error "The DATADIR macro is undefined."
@@ -39,6 +40,8 @@ static void printCommandlineHelp() {
 #ifdef BROGUE_CURSES
     "--term         -t          run in ncurses-based terminal mode\n"
 #endif
+    "--keys SCHEME              keyboard layout: 'classic' (vi-keys) or 'modern'\n"
+    "                           (u/i/o-j/k/l grid); also toggled in-game via ?+Tab\n"
     "--stealth      -S          display stealth range\n"
     "--no-effects   -E          disable color effects\n"
     "--wizard       -W          run in wizard mode, invincible with powerful items\n"
@@ -105,6 +108,11 @@ int main(int argc, char *argv[])
     rogue.mode = GAME_MODE_NORMAL;
     rogue.displayStealthRangeMode = false;
     rogue.trueColorMode = false;
+
+    // iOS port (Brogue SE): restore the persisted keyboard scheme (CLASSIC vi-keys
+    // vs MODERN u/i/o-j/k/l grid). It can also be toggled in-game from the help
+    // screen (press '?' then TAB), and --keys below overrides it for this run.
+    rogueKeyboardScheme = (enum keyboardScheme) seLoadPersistedKeyboardScheme();
 
     enum graphicsModes initialGraphics = TEXT_GRAPHICS;
 
@@ -300,6 +308,23 @@ int main(int argc, char *argv[])
         if (strcmp(argv[i], "--wizard") == 0 || strcmp(argv[i], "-W") == 0) {
             rogue.mode = GAME_MODE_WIZARD;
             continue;
+        }
+
+        // iOS port (Brogue SE): choose the keyboard layout and persist it.
+        if (strcmp(argv[i], "--keys") == 0) {
+            if (i + 1 < argc) {
+                if (!strcmp(argv[i + 1], "modern")) {
+                    rogueKeyboardScheme = KEYBOARD_SCHEME_MODERN;
+                } else if (!strcmp(argv[i + 1], "classic")) {
+                    rogueKeyboardScheme = KEYBOARD_SCHEME_CLASSIC;
+                } else {
+                    badArgument(argv[i + 1]);
+                    return 1;
+                }
+                cePersistKeyboardScheme((int) rogueKeyboardScheme);
+                i++;
+                continue;
+            }
         }
 
         if (strcmp(argv[i], "--hide-seed") == 0) {

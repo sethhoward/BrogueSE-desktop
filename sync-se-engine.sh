@@ -22,6 +22,34 @@ if [ ! -d "$ENGINE_SRC" ]; then
     exit 1
 fi
 
+# The SE engine's source of truth is the REMOTE main branch of Brogue-iPad, not
+# whatever the local checkout happens to be at (it can be behind). Fetch and verify
+# before syncing so we never quietly vendor a stale engine. Set SE_SYNC_ALLOW_BEHIND=1
+# to override (e.g. deliberately syncing a local WIP branch).
+if git -C "$IPAD_REPO" rev-parse --git-dir >/dev/null 2>&1; then
+    branch="$(git -C "$IPAD_REPO" rev-parse --abbrev-ref HEAD)"
+    echo "Checking $IPAD_REPO is up to date with its remote ($branch)..."
+    git -C "$IPAD_REPO" fetch --quiet origin 2>/dev/null || echo "  (warning: git fetch failed; proceeding with local state)"
+    upstream="$(git -C "$IPAD_REPO" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || echo '')"
+    if [ -n "$upstream" ]; then
+        local_rev="$(git -C "$IPAD_REPO" rev-parse HEAD)"
+        remote_rev="$(git -C "$IPAD_REPO" rev-parse "$upstream")"
+        if [ "$local_rev" != "$remote_rev" ]; then
+            behind="$(git -C "$IPAD_REPO" rev-list --count "HEAD..$upstream" 2>/dev/null || echo '?')"
+            if [ "$behind" != "0" ]; then
+                echo "WARNING: $IPAD_REPO ($branch) is BEHIND $upstream by $behind commit(s)." >&2
+                echo "         You would be vendoring a stale engine. Pull first:" >&2
+                echo "             git -C \"$IPAD_REPO\" pull --ff-only" >&2
+                if [ "${SE_SYNC_ALLOW_BEHIND:-0}" != "1" ]; then
+                    echo "         (set SE_SYNC_ALLOW_BEHIND=1 to sync anyway.)" >&2
+                    exit 1
+                fi
+                echo "         SE_SYNC_ALLOW_BEHIND=1 set; syncing the local (behind) state anyway." >&2
+            fi
+        fi
+    fi
+fi
+
 echo "Syncing SE engine:"
 echo "  from $ENGINE_SRC"
 echo "  to   $ENGINE_DST"

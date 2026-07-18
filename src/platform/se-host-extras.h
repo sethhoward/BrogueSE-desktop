@@ -24,6 +24,7 @@ void cePersistLastSeed(uint64_t seed);
 
 // Keyboard scheme / on-screen text input.
 void cePersistKeyboardScheme(int scheme);
+int seLoadPersistedKeyboardScheme(void); // desktop-only: read back what cePersistKeyboardScheme wrote
 void ceRequestTextInput(const char *defaultText, boolean numeric);
 
 // Haptics.

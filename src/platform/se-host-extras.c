@@ -55,9 +55,30 @@ void cePersistLastSeed(uint64_t seed) {
 }
 
 // --- Keyboard scheme --------------------------------------------------------
-// The iOS build persists the on-screen keyboard scheme; irrelevant with a real
-// hardware keyboard.
-void cePersistKeyboardScheme(int scheme) { (void) scheme; }
+// SE supports two hardware-keyboard layouts (enum keyboardScheme): CLASSIC
+// (vi-keys) and MODERN (a right-hand u/i/o, j/k/l, m/,/. movement grid). The
+// engine toggles between them from the in-game help screen (press '?' then TAB)
+// and persists the choice via cePersistKeyboardScheme(). Mirror the iOS build by
+// persisting to a prefs file so the choice survives across launches; main.c reads
+// it back at startup via seLoadPersistedKeyboardScheme().
+#define SE_KEYBOARD_SCHEME_FILE "seKeyboardScheme.txt"
+
+void cePersistKeyboardScheme(int scheme) {
+    FILE *f = fopen(SE_KEYBOARD_SCHEME_FILE, "w");
+    if (!f) return;
+    fprintf(f, "%d\n", scheme);
+    fclose(f);
+}
+
+int seLoadPersistedKeyboardScheme(void) {
+    FILE *f = fopen(SE_KEYBOARD_SCHEME_FILE, "r");
+    if (!f) return 0; // KEYBOARD_SCHEME_CLASSIC
+    int scheme = 0;
+    if (fscanf(f, "%d", &scheme) != 1) scheme = 0;
+    fclose(f);
+    if (scheme < 0 || scheme >= KEYBOARD_SCHEME_COUNT) scheme = 0;
+    return scheme;
+}
 
 // --- On-screen text input ---------------------------------------------------
 // iOS pops a soft keyboard here and feeds characters back asynchronously. On

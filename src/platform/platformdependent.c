@@ -181,6 +181,15 @@ unsigned int glyphToUnicode(enum displayGlyph glyph) {
         case G_ORB_ALTAR: return '|';
         case G_LEFT_TRIANGLE: return U_LEFT_TRIANGLE;
 
+        // iOS port (Brogue SE): status-blink overlays added by SE. Ported from the
+        // SE bridge's ce_glyphToUnicode (SEBridge.mm). ★/♥/◈ are drawn into the font
+        // sheet (see fontIndex + tiles.png); ¿ uses the Latin-1 slot 0xBF.
+        case G_STUN_STAR: return U_BLACK_STAR;
+        case G_HEART: return U_BLACK_HEART;
+        case G_SHIELD_CREST: return U_SHIELD_CREST;
+        case G_INVERTED_QUESTION: return U_INVERTED_QUESTION;
+        case G_POISON_SKULL: return U_SKULL_CROSSBONES;
+
         default:
             brogueAssert(false);
             return '?';

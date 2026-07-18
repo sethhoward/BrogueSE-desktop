@@ -23,6 +23,16 @@
 #define U_FILLED_CIRCLE_BARS  0x29F3
 #define U_LEFT_TRIANGLE 0x1F780
 
+// iOS port (Brogue SE): status-blink overlay glyphs. The engine draws these over a
+// creature to show its status. On iOS they render through ArialUnicodeMS; on desktop
+// ★/♥/◈ are drawn into the font sheet (tiles.png slots 0x9C/0x9D/0x9E, mapped in
+// fontIndex), and ¿ uses the existing Latin-1 slot 0xBF.
+#define U_BLACK_STAR         0x2605  // G_STUN_STAR      (paralyzed)
+#define U_BLACK_HEART        0x2665  // G_HEART          (healing)
+#define U_SHIELD_CREST       0x25C8  // G_SHIELD_CREST   (protected)
+#define U_INVERTED_QUESTION  0x00BF  // G_INVERTED_QUESTION (confused)
+#define U_SKULL_CROSSBONES   0x2620  // G_POISON_SKULL   (poisoned)
+
 // #define U_UP_TRIANGLE  0x2206
 // #define U_DOWN_TRIANGLE  0x2207
 // #define U_THETA  0x03B8

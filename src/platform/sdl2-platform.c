@@ -139,6 +139,22 @@ static char applyRemaps(char c) {
 
 
 /*
+iOS port (Brogue SE): apply the active keyboard scheme to a hardware keystroke.
+CLASSIC is an identity mapping (vi-keys); MODERN is SE's right-hand directional
+grid (u/i/o, j/k/l, m/,/.). On iOS this is done in SEBridge.mm as each event is
+built; the desktop SDL input path is the equivalent choke point, so we mirror it
+here. Skipped during text entry (keys are literal there). QUIT_KEY ('Q') is left
+untouched: applyKeyboardScheme() neuters it for the tablet's menu-only quit, but
+on desktop 'Q' should still quit the game.
+*/
+static void applyScheme(rogueEvent *event, boolean textInput) {
+    if (textInput || event->eventType != KEYSTROKE) return;
+    if (event->param1 == QUIT_KEY) return;
+    event->param1 = applyKeyboardScheme(event->param1, &event->controlKey, &event->shiftKey);
+}
+
+
+/*
 If an event is available, returns true and updates returnEvent. Otherwise
 it returns false and an error event. This function also processes
 platform-specific inputs/behaviours.
@@ -182,6 +198,7 @@ static boolean pollBrogueEvent(rogueEvent *returnEvent, boolean textInput) {
 
             if (eventFromKey(returnEvent, key)) {
                 returnEvent->eventType = KEYSTROKE;
+                applyScheme(returnEvent, textInput);
                 return true;
             }
         } else if (event.type == SDL_TEXTINPUT && (unsigned char)(event.text.text[0]) < 0x80) {
@@ -206,6 +223,7 @@ static boolean pollBrogueEvent(rogueEvent *returnEvent, boolean textInput) {
 
             returnEvent->eventType = KEYSTROKE;
             returnEvent->param1 = c;
+            applyScheme(returnEvent, textInput);
             // ~ printf("textinput %s\n", event.text.text);
             return true;
         } else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) {
@@ -344,6 +362,17 @@ static int fontIndex(enum displayGlyph glyph) {
     // These are the only non-ASCII glyphs which always come from the font sheet
     if (glyph == G_UP_ARROW) return 0x90;
     if (glyph == G_DOWN_ARROW) return 0x91;
+
+    // iOS port (Brogue SE): status-blink overlays (drawn over a creature to show
+    // paralyzed/healing/protected/confused). They are UI symbols, not world tiles,
+    // so they always come from the font sheet regardless of graphics mode. ★/♥/◈
+    // were drawn into the previously empty slots 0x9C/0x9D/0x9E of tiles.png; ¿ uses
+    // the existing Latin-1 slot 0xBF.
+    if (glyph == G_STUN_STAR) return 0x9c;
+    if (glyph == G_HEART) return 0x9d;
+    if (glyph == G_SHIELD_CREST) return 0x9e;
+    if (glyph == G_POISON_SKULL) return 0x9f;
+    if (glyph == G_INVERTED_QUESTION) return 0xbf;
 
     if (glyph < 128) {
         // ASCII characters map directly

@@ -1,10 +1,10 @@
 Brogue SE — Desktop
 ===================
 
-Desktop (Windows / Linux) builds of **Brogue SE** ("Seth's Edition"), the
-firehose fork of Brogue CE that lives in the iOS/iPadOS/macOS app. This repo is a
-thin **desktop platform layer** wrapped around the SE engine so it can be built
-and played with a keyboard and mouse via SDL2 — no iOS app, no engine picker.
+Desktop (Windows / Linux) builds of **Brogue SE**, the firehose fork of Brogue CE
+that lives in the iOS/iPadOS/macOS app. This repo is a thin **desktop platform
+layer** wrapped around the SE engine so it can be built and played with a keyboard
+and mouse via SDL2 — no iOS app, no engine picker.
 
 The SE engine itself is **not authored here**. It is vendored (copied) from the
 `Brogue-iPad` repo, which is the single source of truth for all SE gameplay and
@@ -103,18 +103,40 @@ The CI builds the **committed** `src/brogue`; it does not run the sync script, s
 remember to sync + commit the engine before pushing a build.
 
 
+Keyboard layout
+---------------
+
+SE supports two hardware-keyboard schemes (`enum keyboardScheme`):
+
+  * **classic** — vi-keys (h/j/k/l + y/u/b/n), the traditional Brogue layout.
+    Arrow keys and the numpad also move. This is the default.
+  * **modern** — a right-hand directional grid: `u/i/o`, `j/k/l`, `m/,/.` around
+    the i(up)/j(left)/k(down)/l(right) cross, with a few commands displaced
+    (inventory→`e`, messages→`p`, re-apply staff→`A`).
+
+Switch at launch with `--keys classic|modern`, or in-game from the help screen
+(press `?`, then `Tab`). The choice is persisted (in `seKeyboardScheme.txt` next
+to the binary) and restored on the next launch.
+
+> Implementation note: SE applies the scheme in its host bridge, not the engine,
+> so the desktop SDL input path calls `applyKeyboardScheme()` itself (see
+> `applyScheme()` in `sdl2-platform.c`). `QUIT_KEY` ('Q') is exempted so desktop
+> quit keeps working (the scheme otherwise neuters it for the tablet's menu-only
+> quit).
+
 Known gaps / follow-ups
 -----------------------
 
-  * **New SE glyphs in text mode.** SE added display glyphs (e.g. status-blink
-    stars/hearts/shields, smoke, new altars). `glyphToUnicode()` in
-    `platformdependent.c` is upstream CE's and doesn't map them yet, so they fall
-    through to `'?'` in text mode. Extend that switch (and the `tiles.png` sheet
-    for graphical mode) to render them. This is desktop-owned code, so it can be
-    fixed without touching the engine.
-  * **Graphical tiles.** Tile indices are derived from glyph enum values; SE's
-    extended enum may need `tiles.png` / `tiles.bin` regenerated before TILES /
-    HYBRID graphics modes look right. Text mode is unaffected.
+  * **Status-blink glyphs.** SE's status overlays (★ paralyzed, ♥ healing,
+    ◈ protected, ☠ poisoned, ¿ confused) are rendered on desktop by mapping them
+    in `glyphToUnicode()`/`fontIndex()`: ¿ uses the font sheet's Latin-1 slot, and
+    ★/♥/◈/☠ were drawn (Arial Unicode) into the previously empty font-sheet slots
+    0x9C–0x9F of `bin/assets/tiles.png`. They come from the font sheet in every
+    graphics mode. (`tiles.bin` was not regenerated, so those four are drawn without
+    sub-pixel optimization — imperceptible at overlay size. To re-optimize: delete
+    `bin/assets/tiles.bin` and launch once, which reruns the ~2-min optimizer.)
+    When SE adds another status glyph, draw it into the next empty slot and add the
+    `glyphToUnicode`/`fontIndex` entries (grep the engine's `statusBlinkGlyphFor`).
   * **Saves are per-platform.** SE saves/recordings are input replays; desktop
     saves interchange across desktop builds but not with iOS unless the version
     string and glyph enum match exactly.
