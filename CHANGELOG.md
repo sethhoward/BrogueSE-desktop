@@ -140,7 +140,10 @@ desktop. See the [README](README.md) for details.
   Windows and Linux artifacts on every push.
 - **Keyboard layouts** — desktop defaults to the Modern (u/i/o-j/k/l grid) layout;
   Classic (vi-keys) is still available via `--keys classic` at launch or `?`+Tab
-  in-game, and the choice persists across launches.
+  in-game, and the choice persists across launches. In-play prompts show the active
+  layout's key hints. The active scheme is applied when the engine consumes a key
+  (keyed on its text-input context), so menu hotkeys like the title screen's `n`
+  (New Game) work regardless of layout.
 - **Status-blink glyphs** — the ★ paralyzed, ♥ healing, ◈ protected, ☠ poisoned, and
   ¿ confused overlays render in every graphics mode (drawn into the SDL font sheet).
 - **Cosmetic animation layer** — status blinks, noise-system ripples, star ripples,
