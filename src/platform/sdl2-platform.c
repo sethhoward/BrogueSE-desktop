@@ -145,11 +145,18 @@ static char applyRemaps(char c) {
 /*
 iOS port (Brogue SE): apply the active keyboard scheme to a hardware keystroke.
 CLASSIC is an identity mapping (vi-keys); MODERN is SE's right-hand directional
-grid (u/i/o, j/k/l, m/,/.). On iOS this is done in SEBridge.mm as each event is
-built; the desktop SDL input path is the equivalent choke point, so we mirror it
-here. Skipped during text entry (keys are literal there). QUIT_KEY ('Q') is left
-untouched: applyKeyboardScheme() neuters it for the tablet's menu-only quit, but
-on desktop 'Q' should still quit the game.
+grid (u/i/o, j/k/l, m/,/.), which also makes the vi-movement keys h/y/b/n inert.
+
+This MUST run at the moment the engine consumes an event (in nextKeyOrMouseEvent,
+using that call's textInput), not when SDL is polled -- because pauseForMilliseconds
+polls SDL into a cached event with textInput=false, and that same event may later be
+consumed by a menu that asked for textInput=true. Remapping at poll time would neuter
+menu hotkeys (e.g. MODERN turns the title screen's 'n'/New Game into UNKNOWN_KEY).
+Applying it at consumption, keyed on the consumer's textInput, mirrors SEBridge.mm.
+
+Skipped during text entry (keys are literal there). QUIT_KEY ('Q') is left untouched:
+applyKeyboardScheme() neuters it for the tablet's menu-only quit, but on desktop 'Q'
+should still quit the game.
 */
 static void applyScheme(rogueEvent *event, boolean textInput) {
     if (textInput || event->eventType != KEYSTROKE) return;
@@ -202,7 +209,6 @@ static boolean pollBrogueEvent(rogueEvent *returnEvent, boolean textInput) {
 
             if (eventFromKey(returnEvent, key)) {
                 returnEvent->eventType = KEYSTROKE;
-                applyScheme(returnEvent, textInput);
                 return true;
             }
         } else if (event.type == SDL_TEXTINPUT && (unsigned char)(event.text.text[0]) < 0x80) {
@@ -227,7 +233,6 @@ static boolean pollBrogueEvent(rogueEvent *returnEvent, boolean textInput) {
 
             returnEvent->eventType = KEYSTROKE;
             returnEvent->param1 = c;
-            applyScheme(returnEvent, textInput);
             // ~ printf("textinput %s\n", event.text.text);
             return true;
         } else if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP) {
@@ -354,6 +359,7 @@ static void _nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boo
     if (lastEvent.eventType != EVENT_ERROR) {
         *returnEvent = lastEvent;
         lastEvent.eventType = EVENT_ERROR;
+        applyScheme(returnEvent, textInput); // remap at consumption, keyed on this call's textInput
         return;
     }
 
@@ -376,6 +382,8 @@ static void _nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boo
 
         _delayUpTo(PAUSE_BETWEEN_EVENT_POLLING);
     }
+
+    applyScheme(returnEvent, textInput); // remap at consumption, keyed on this call's textInput
 }
 
 
