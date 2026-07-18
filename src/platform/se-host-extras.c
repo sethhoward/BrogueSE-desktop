@@ -70,13 +70,16 @@ void cePersistKeyboardScheme(int scheme) {
     fclose(f);
 }
 
+// Returns the persisted scheme (0..KEYBOARD_SCHEME_COUNT-1), or -1 if the player
+// has never made a choice, so the caller can apply the desktop default rather than
+// mistaking "no file" for a deliberate CLASSIC selection.
 int seLoadPersistedKeyboardScheme(void) {
     FILE *f = fopen(SE_KEYBOARD_SCHEME_FILE, "r");
-    if (!f) return 0; // KEYBOARD_SCHEME_CLASSIC
-    int scheme = 0;
-    if (fscanf(f, "%d", &scheme) != 1) scheme = 0;
+    if (!f) return -1;
+    int scheme = -1;
+    if (fscanf(f, "%d", &scheme) != 1) scheme = -1;
     fclose(f);
-    if (scheme < 0 || scheme >= KEYBOARD_SCHEME_COUNT) scheme = 0;
+    if (scheme < 0 || scheme >= KEYBOARD_SCHEME_COUNT) return -1;
     return scheme;
 }
 

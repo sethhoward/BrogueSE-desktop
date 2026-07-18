@@ -5,6 +5,7 @@ common_bin := bin/assets bin/keymap.txt
 define make_release_base
 	mkdir $@
 	cp README.md $@/README.txt
+	cp CHANGELOG.md $@/CHANGELOG.txt
 	cp LICENSE.txt $@
 endef
 

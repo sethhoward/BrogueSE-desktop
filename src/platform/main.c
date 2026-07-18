@@ -109,10 +109,16 @@ int main(int argc, char *argv[])
     rogue.displayStealthRangeMode = false;
     rogue.trueColorMode = false;
 
-    // iOS port (Brogue SE): restore the persisted keyboard scheme (CLASSIC vi-keys
-    // vs MODERN u/i/o-j/k/l grid). It can also be toggled in-game from the help
-    // screen (press '?' then TAB), and --keys below overrides it for this run.
-    rogueKeyboardScheme = (enum keyboardScheme) seLoadPersistedKeyboardScheme();
+    // Brogue SE keyboard layout. Desktop defaults to the MODERN u/i/o-j/k/l grid;
+    // a choice persisted from a previous run (or --keys below) overrides it, and it
+    // can be toggled in-game from the help screen ('?' then TAB). (CLASSIC = vi-keys.)
+    rogueKeyboardScheme = KEYBOARD_SCHEME_MODERN;
+    {
+        int persistedScheme = seLoadPersistedKeyboardScheme();
+        if (persistedScheme >= 0) {
+            rogueKeyboardScheme = (enum keyboardScheme) persistedScheme;
+        }
+    }
 
     enum graphicsModes initialGraphics = TEXT_GRAPHICS;
 

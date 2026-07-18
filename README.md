@@ -106,17 +106,25 @@ remember to sync + commit the engine before pushing a build.
 Keyboard layout
 ---------------
 
-SE supports two hardware-keyboard schemes (`enum keyboardScheme`):
+**Desktop defaults to the Modern layout** — a right-hand movement grid for
+one-handed play, no reaching for `h/j/k/l/y/u/b/n`:
 
-  * **classic** — vi-keys (h/j/k/l + y/u/b/n), the traditional Brogue layout.
-    Arrow keys and the numpad also move. This is the default.
-  * **modern** — a right-hand directional grid: `u/i/o`, `j/k/l`, `m/,/.` around
-    the i(up)/j(left)/k(down)/l(right) cross, with a few commands displaced
-    (inventory→`e`, messages→`p`, re-apply staff→`A`).
+        u  i  o          ↖  ↑  ↗
+        j  k  l    →     ←  ↓  →
+        m  ,  .          ↙  ↓  ↘
 
-Switch at launch with `--keys classic|modern`, or in-game from the help screen
-(press `?`, then `Tab`). The choice is persisted (in `seKeyboardScheme.txt` next
-to the binary) and restored on the next launch.
+`i` is up, `k` is down (`,` is a second down), `j`/`l` are left/right, and the
+corners `u/o/m/.` are the diagonals. Hold **Shift** (or **Ctrl**) with any of them
+to run. A few commands shift off the movement keys: inventory → `e`, message
+archive → `p`, re-apply last staff → `A`, ascend / descend → `Shift`+`P` /
+`Shift`+`;`.
+
+Prefer the traditional keys? **Classic** is the vi-key layout (`h/j/k/l` +
+`y/u/b/n`). Arrow keys and the numpad move in *both* layouts, and `Q` always quits.
+
+Pick a layout with `--keys modern|classic` at launch, or toggle it in-game from the
+help screen (press `?`, then `Tab`). Your choice is saved (in `seKeyboardScheme.txt`
+next to the binary) and restored next launch; with no saved choice, Modern is used.
 
 > Implementation note: SE applies the scheme in its host bridge, not the engine,
 > so the desktop SDL input path calls `applyKeyboardScheme()` itself (see
