@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+
+for file in "$@"; do
+    cat $file
+    echo
+done

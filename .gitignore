@@ -1,0 +1,36 @@
+# Build artifacts
+*.o
+vars/
+bin/brogue
+bin/brogue.exe
+
+# Runtime files written next to the binary (saves, recordings, scores, prefs)
+bin/*.broguesave
+bin/*.broguerec
+bin/*HighScores.txt
+bin/*RunHistory.txt
+bin/seLastSeed.txt
+bin/Screenshot*.png
+
+# Release dirs and archives
+BrogueSE-windows
+BrogueSE-linux
+*.zip
+*.tar.gz
+
+# Editors / misc
+.vscode/
+.gdb_history
+.DS_Store
+*.su
+*.gcda
+*.gcno
+*.gcov
+*.desktop
+gmon.out
+
+# Windows dependency downloads (fetched by .github/get-deps-mingw.ps1)
+/SDL2/
+/SDL2_image/
+SDL2-devel-*-mingw.tar.gz
+SDL2_image-devel-*-mingw.tar.gz

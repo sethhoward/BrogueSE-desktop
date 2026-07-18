@@ -1,0 +1,72 @@
+name: "Build"
+on:
+  push:
+    branches:
+    - '**'
+  workflow_dispatch:   # allow manual runs from the Actions tab
+
+jobs:
+
+  # ---------------------------------------------------------------------------
+  # Windows (primary target). Built on a Windows runner with MinGW, mirroring
+  # the upstream BrogueCE desktop build.
+  # ---------------------------------------------------------------------------
+  windows:
+    runs-on: windows-latest
+    steps:
+    - name: "Checkout sources"
+      uses: actions/checkout@v4
+
+    - name: "Install dependencies"
+      run: |
+        .\.github\get-deps-mingw.ps1
+
+    - name: "Compile"
+      shell: powershell
+      run: |
+        $env:path = $env:path + ";" + (Join-Path $pwd.Drive.Root "opt/local/x86_64-w64-mingw32/bin")
+        mingw32-make SDL_CONFIG='sdl2-config --prefix=/opt/local/x86_64-w64-mingw32' SYSTEM=WINDOWS CC=gcc bin/brogue.exe
+
+    - name: "Create artifact"
+      run: |
+        mingw32-make SYSTEM=WINDOWS BrogueSE-windows
+        cp SDL2\x86_64-w64-mingw32\bin\SDL2.dll BrogueSE-windows
+        cp SDL2_image\x86_64-w64-mingw32\bin\SDL2_image.dll BrogueSE-windows
+        7z a BrogueSE-windows-x86_64.zip BrogueSE-windows
+
+    - name: "Upload artifact"
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-x86_64
+        path: BrogueSE-windows-x86_64.zip
+        compression-level: 0  # already compressed
+
+  # ---------------------------------------------------------------------------
+  # Linux (secondary target).
+  # ---------------------------------------------------------------------------
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: "Install dependencies"
+      run: |
+        sudo apt update -y
+        sudo apt install -y libsdl2-dev libsdl2-image-dev
+
+    - name: "Checkout sources"
+      uses: actions/checkout@v4
+
+    - name: "Compile"
+      run: |
+        make bin/brogue
+
+    - name: "Create artifact"
+      run: |
+        make BrogueSE-linux
+        tar -czvf BrogueSE-linux-x86_64.tar.gz BrogueSE-linux
+
+    - name: "Upload artifact"
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-x86_64
+        path: BrogueSE-linux-x86_64.tar.gz
+        compression-level: 0  # already compressed
