@@ -124,6 +124,24 @@ to the binary) and restored on the next launch.
 > quit keeps working (the scheme otherwise neuters it for the tablet's menu-only
 > quit).
 
+Cosmetic animation layer
+------------------------
+
+SE's cosmetic-effects layer — status-blink overlays (★/♥/◈/☠/¿), the noise-system
+box ripples, star ripples, dash trails — is animated by `advanceCosmeticAnimations()`,
+which SE pumps from its host bridge's **input-idle loop** (beside the terrain-color
+shimmer), *not* from the engine's turn loop. The desktop SDL layer is the equivalent
+choke point, so `sdl2-platform.c` calls it in two places:
+
+  * `_nextKeyOrMouseEvent` — in the `colorsDance` idle tick (the common case: you're
+    standing at the map and effects animate);
+  * `_pauseForMilliseconds` — during engine-driven automation (rest / travel /
+    auto-explore), throttled to ~60 Hz, where the idle loop doesn't run.
+
+Miss either and the whole cosmetic layer silently freezes (nothing draws — this is
+distinct from a glyph rendering as `?`). `advanceCosmeticAnimations()` runs on
+`RNG_COSMETIC`, so it never affects determinism.
+
 Known gaps / follow-ups
 -----------------------
 

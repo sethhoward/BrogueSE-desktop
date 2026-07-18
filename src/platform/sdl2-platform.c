@@ -319,6 +319,20 @@ static boolean _pauseForMilliseconds(short ms, PauseBehavior behavior) {
     updateScreen();
     _delayUpTo(ms);
 
+    // iOS port (Brogue SE): during engine-driven automation (rest / travel /
+    // auto-explore) the idle input loop above never runs, so pump the cosmetic layer
+    // here too, throttled to ~60Hz so a fast rest loop doesn't strobe the blink.
+    // Mirrors SEBridge.mm's pauseForMilliseconds.
+    if (rogue.autoPlayingLevel || rogue.automationActive) {
+        static long lastCosmeticPump = 0;
+        long now = SDL_GetTicks();
+        if (now - lastCosmeticPump >= 16) {
+            lastCosmeticPump = now;
+            advanceCosmeticAnimations();
+            commitDraws();
+        }
+    }
+
     if (lastEvent.eventType != EVENT_ERROR
         && (lastEvent.eventType != MOUSE_ENTERED_CELL || behavior.interuptForMouseMove)) {
         return true; // SDL already gave us an interrupting event to process
@@ -342,6 +356,13 @@ static void _nextKeyOrMouseEvent(rogueEvent *returnEvent, boolean textInput, boo
     while (true) {
         if (colorsDance) {
             shuffleTerrainColors(3, true);
+            // iOS port (Brogue SE): tick the cosmetic animation layer (status blinks,
+            // noise/star ripples, dash trails) on the same input-idle clock as the
+            // terrain shimmer. SE pumps this from its host bridge's idle loop beside
+            // shuffleTerrainColors; the desktop idle loop is the equivalent choke point.
+            // Without it the entire cosmetic layer stays frozen/blank. commitDraws()
+            // flushes both.
+            advanceCosmeticAnimations();
             commitDraws();
         }
 
