@@ -7,7 +7,11 @@
 #include "platform.h"
 #include "tiles.h"
 
-#define PAUSE_BETWEEN_EVENT_POLLING     36L//17
+// iOS port (Brogue SE): 16ms (~60Hz) idle tick, matching the iOS host's
+// sleepForTimeInterval:0.016667. SE's cosmetic animation layer advances one frame
+// per idle tick (advanceCosmeticAnimations), and its frame counts are tuned for
+// 60Hz; the upstream 36ms (~28Hz) ran those animations ~2x too slow on desktop.
+#define PAUSE_BETWEEN_EVENT_POLLING     16L
 #define MAX_REMAPS  128
 
 struct keypair {

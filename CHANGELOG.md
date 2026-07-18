@@ -145,6 +145,7 @@ desktop. See the [README](README.md) for details.
   ¿ confused overlays render in every graphics mode (drawn into the SDL font sheet).
 - **Cosmetic animation layer** — status blinks, noise-system ripples, star ripples,
   and dash trails animate on desktop (the cosmetic animator is pumped from the SDL
-  idle loop, mirroring the Apple host).
+  idle loop, mirroring the Apple host) at 60 Hz, so they run at the same speed as on
+  iOS (the idle tick was ~28 Hz, which made these animations ~2× too slow).
 - **Vendored engine** kept in sync with Brogue-iPad `main` via `sync-se-engine.sh`,
   which refuses to vendor a stale engine.
