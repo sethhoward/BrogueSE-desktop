@@ -87,6 +87,13 @@
 // frozen foliage/push). Granted deterministically in initializeRogue, so it is recording-safe. Flip to 0 to ship.
 #define D_FROST_STAFF_START             0//(WIZARD_MODE && 0)
 
+// iOS port (Brogue SE): start with a high-enchant staff of firebolt / staff of poison for playtesting the
+// "staff terrain trails" feature -- the ember->ash streak the firebolt leaves and the acid-puddle trail the
+// poison ray leaves on bare ground it crosses. Granted deterministically in initializeRogue, so it is
+// recording-safe. CURRENTLY ON -- flip to 0 to ship.
+#define D_FIRE_STAFF_START              0//(WIZARD_MODE && 0)
+#define D_POISON_STAFF_START            0//(WIZARD_MODE && 0)
+
 // iOS port (iBrogue): start with a high-enchant staff of blinking for playtesting the iPhone zoom camera's
 // same-level-jump follow WHILE ZOOMED (targeting keeps the zoom, unlike the item-menu teleport which
 // suspends it). Aim short to test the trailing catch-up, far to test the cinematic pan. Granted
@@ -178,9 +185,12 @@
 //
 // NOISE_PERCEPTION_SCALE is the single A/B tuning lever: 100 = baseline, <100 toward lucky-roll, >100
 // toward generous -- slide the whole ringless feel without re-deriving every constant.
-// RNG SPLIT (hearing-interrupts-rest, 2026-07-22): during a LONG-REST turn ('Z' automation) the roll is
-// SUBSTANTIVE -- a successful hear interrupts the rest (one interrupt per monster per session, hostiles
-// only; see MB_HEARD_THIS_REST), so the outcome drives gameplay and must replay identically. Everywhere
+// RNG SPLIT (hearing-interrupts-rest, 2026-07-22; replay fix 2026-07-23): during ANY rest turn
+// (rogue.justRested: single 'z' or a 'Z' autoRest turn) the roll is SUBSTANTIVE -- a successful hear
+// interrupts the rest (one interrupt per monster per session, hostiles only; see MB_HEARD_THIS_REST),
+// so the outcome drives gameplay and must replay identically. The gate deliberately does NOT read
+// rogue.automationActive: playback replays autoRest as plain REST_KEY turns with it unset, so an
+// automation gate draws substantive RNG live but not on replay -- the 0.12.1 out-of-sync bug. Everywhere
 // else the roll stays RNG_COSMETIC (informational ripple only), so tuning these constants still never
 // desyncs normal-play recordings or seeds -- only rest-context behavior is version-locked (recording
 // version gates compat). See monsterEmitMovementNoise, docs/design/noise-system.md, PERCEPTION_AUDIT.md.
@@ -291,10 +301,10 @@
 #define NOISE_DOOR_LISTEN_RANGE         4   // audible-radius tiles added while at a door (hear through it)
 #define NOISE_REST_PERCEPTION_BONUS     6   // detection bonus while resting (listening intently). Applies
                                             // whenever rogue.justRested: live on a short 'z' (ripple animates
-                                            // with the boost) AND on long rest 'Z', where a successful hear now
-                                            // INTERRUPTS the rest (message + ripple + haptic; substantive roll,
-                                            // one interrupt per monster per session -- see MB_HEARD_THIS_REST
-                                            // and monsterEmitMovementNoise). Landed 2026-07-22.
+                                            // with the boost) AND on any rest turn ('z' or 'Z'), where a successful
+                                            // hear now INTERRUPTS the rest (message + ripple + haptic; substantive
+                                            // roll, one interrupt per monster per session -- see MB_HEARD_THIS_REST
+                                            // and monsterEmitMovementNoise). Landed 2026-07-22; replay fix 07-23.
 // Terrain EMISSION: how much the terrain a creature steps into adds to / dampens the noise of that step
 // (distinct from the sound map's propagation damping above). Signed, smaller than the monster tiers since
 // it only modulates on top. Read at the destination cell (terrainNoiseModifier). Direction-agnostic.
@@ -1149,6 +1159,12 @@ enum tileType {
     // iOS port (Brogue SE): a swath of open grass matted flat by a large creature's passage (isLarge);
     // regrows to grass like trampled foliage. A "something big came through here" tell.
     FLATTENED_GRASS,
+
+    // iOS port (Brogue SE): staff of frost -- a rime of frost the frost bolt lays on bare ground it crosses
+    // (the cosmetic ground counterpart to the ice it forms on water/foliage). Purely cosmetic SURFACE overlay
+    // (no T_* gameplay flags); thaws back to bare floor via FROSTED_GROUND_MELT. See DF_GROUND_FROST.
+    FROSTED_GROUND,
+    FROSTED_GROUND_MELT,
 
     NUMBER_TILETYPES,
 };
@@ -2426,6 +2442,21 @@ enum dungeonFeatureTypes {
     DF_PHANTOM_ECTOPLASM,
     DF_DRAGON_ROOST_BONES,
     DF_DRAGON_ROOST_ASH,
+
+    // iOS port (Brogue SE): "staff terrain trails" -- cosmetic residue a staff's bolt leaves along its path
+    // (pathDF), gated to bare ground so it skips liquids, chasm, and terrain the bolt already transforms.
+    // Fire: sputtering embers that fade to ash via the stock EMBERS->ASH chain (permanent ash, like all fire).
+    // Poison: the existing ACID_SPLATTER puddle (permanent, shared with acid potions/mounds).
+    // Frost: a rime of FROSTED_GROUND that thaws back to floor; chained onto the frost-bolt freeze cascade.
+    // Each has a FLOOR link plus a FLOOR_FLOODABLE link (mirrors the water cascade's algae variants) so the
+    // trail stays continuous over both bare-floor tile types. Single-cell (startProb 0), no spread.
+    DF_EMBER_TRAIL,
+    DF_EMBER_TRAIL_FLOODABLE,
+    DF_ACID_TRAIL,
+    DF_ACID_TRAIL_FLOODABLE,
+    DF_GROUND_FROST,
+    DF_GROUND_FROST_FLOODABLE,
+    DF_GROUND_FROST_MELT,
 
     NUMBER_DUNGEON_FEATURES,
 };
