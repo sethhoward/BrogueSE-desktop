@@ -11,6 +11,26 @@ listed separately under [Desktop port](#desktop-port) at the end.
 
 ---
 
+## 0.12.1 — "Sharper Ears"
+
+*Teaches the dungeon to break your rest the moment you hear something coming,
+sharpens last release's curses, and smooths the camera.*
+
+### 🔊 Sharper Ears
+- **Rest with one ear open** — Resting (`Z`) now snaps you awake the moment you hear a hostile creature's footsteps closing in, with a message, a ripple, and a pulse that scale to how loud and how near it is. You get one such wake per creature, so pressing on past a warning is an informed gamble.
+- **No more resting yourself to death by earshot** — Fighting you can hear off in the distance no longer jolts you awake turn after turn: the first sound interrupts, then it quiets until you move again.
+- **Thicker walls, muffled sound** — Noise now carries a little more distinctly through closed doors, so listening at one tells you more about what's on the other side.
+
+### 🔮 Curses, Sharpened
+- **No more penalty tax** — A cursed runic now starts at a clean +0 instead of a negative, so from the very first swing it's purely about the trade-off, never a dead stat loss you're digging out of.
+- **Cheaper to purify armor** — Cleansing a cursed runic off your armor now takes one fewer enchant scroll, making the "keep it and purify" path a little more reachable.
+
+### 🎮 Quality of Life
+- **Smoother camera** — With zoom active, the view now glides to follow you instead of snapping a step at a time; true trips between floors still cut cleanly.
+- **Quieter bottle captures** — Filling the empty bottle no longer flashes the identify star — it's a deliberate act, and the capture message already names what you scooped up.
+
+---
+
 ## 0.12.0 — "C is for Curses"
 
 *Turns cursed gear from a dead end into a decision — a cursed runic now pairs a real,
