@@ -11,6 +11,19 @@ listed separately under [Desktop port](#desktop-port) at the end.
 
 ---
 
+## 0.12.2 — "Sharper Ears"
+
+*Fixes the save/replay desync from last release's rest-listening, and lets a few
+staff bolts leave a mark on the ground they streak across.*
+
+### 🔥 Staff Trails
+- **Bolts leave a trail** — A staff's bolt now leaves cosmetic residue on the bare ground it streaks across: firebolt scorches a fading line of embers to ash, poison lays a lingering acid puddle, and frost rimes the floor with a delicate frost that thaws away over time. Purely visual — it skips water, chasms, and grass, and doesn't change how the bolt plays.
+
+### 🩹 Fixes
+- **No more "out of sync" after resting near danger** — The wake-on-hearing roll added in 0.12.1 was drawn slightly differently while you played than when a save or recording replayed it, so resting within earshot of an unseen hostile could throw a playback-out-of-sync error on load or when watching a recording. The roll now behaves identically live and on replay, whether you tapped a single rest or held one down.
+
+---
+
 ## 0.12.1 — "Sharper Ears"
 
 *Teaches the dungeon to break your rest the moment you hear something coming,
