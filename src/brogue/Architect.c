@@ -1508,6 +1508,7 @@ boolean buildAMachine(enum machineTypes bp,
                             theItem = generateItem(feature->itemCategory, feature->itemKind);
                             failsafe = 1000;
                             while ((theItem->flags & ITEM_CURSED)
+                                   || (theItem->enchant1 < 0) // iOS port (Brogue SE): cursed-runics rework introduced plain "inferior" negatives (negative enchant1, no ITEM_CURSED flag). Reward rooms must stay neutral-or-better, so reject them too.
                                    || ((feature->flags & MF_REQUIRE_GOOD_RUNIC) && (!(theItem->flags & ITEM_RUNIC))) // runic if requested
                                    || ((feature->flags & MF_NO_THROWING_WEAPONS) && theItem->category == WEAPON && theItem->quantity > 1) // no throwing weapons if prohibited
                                    || ((feature->flags & MF_REQUIRE_HEAVY_WEAPON) && (!itemIsHeavyWeapon(theItem) || !itemIsPositivelyEnchanted(theItem))) // must be a positively enchanted heavy weapon
