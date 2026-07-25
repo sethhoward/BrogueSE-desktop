@@ -11,6 +11,15 @@ listed separately under [Desktop port](#desktop-port) at the end.
 
 ---
 
+## 0.12.3 — Reward-room fix
+
+*Keeps altar and treasure rooms from handing you a downgrade.*
+
+### 🩹 Fixes
+- **No more negative-enchant gear in reward rooms** — The cursed-runics rework split negative weapons and armor into two kinds: a welded runic curse and a plain "inferior" item that carries a negative enchant but isn't flagged cursed. Reward rooms (altars, treasure rooms) only screened out the flagged-cursed kind, so the inferior negatives could slip through and land on a reward pedestal. Those rooms now reject any negatively-enchanted item, so a reward is always neutral-or-better.
+
+---
+
 ## 0.12.2 — "Sharper Ears"
 
 *Fixes the save/replay desync from last release's rest-listening, and lets a few
